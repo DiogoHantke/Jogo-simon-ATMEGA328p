@@ -86,11 +86,9 @@ capacidade de memória e tempo de reação do jogador.
 
 <ul>
 
-<li><strong>src/</strong> — firmware principal do Arduino.</li>
+<li><strong>simon/</strong> — firmware principal do Arduino.</li>
 
 <li><strong>assets/</strong> — imagens de circuito e simulações.</li>
-
-<li><strong>docs/</strong> — documentação complementar.</li>
 
 <li><strong>README.md</strong> — documentação do projeto.</li>
 
