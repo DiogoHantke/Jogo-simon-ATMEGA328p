@@ -58,7 +58,6 @@ capacidade de memória e tempo de reação do jogador.
 <ul>
 <li><a href="#sistema">Sistema de Arquivos</a></li>
 <li><a href="#pinos">Mapa de Pinos</a></li>
-<li><a href="#tinkercad">Projeto tinkercad</a></li>
 <li><a href="#execucao">Execução do Programa</a></li>
 <li><a href="#estrutura">Estrutura do Firmware</a></li>
 <li><a href="#funcionamento">Funcionamento do Jogo</a></li>
@@ -286,53 +285,125 @@ montagem do jogo Simon baseado em Arduino.
 
 <h2 id="codigo">Explicação do Código</h2>
 
+<h3>Função start()</h3>
+
+<pre><code>
+int start(){ 
+    int numberBtn = -1;
+    int numberFirst = -1;
+    int timeNumber = 1000;
+
+    int listLeds[]{
+        LEDGREEN, 
+        LEDYELLOW, 
+        LEDBLUE, 
+        LEDRED      
+    };
+    
+    int index = 0;
+    static unsigned long previousTime = 0;
+        
+    while(numberBtn < 0){
+
+        numberBtn = btnEvent(timeNumber);
+        
+        if(numberBtn >= 0){
+            numberFirst = numberBtn;
+            Serial.println("started");
+            return numberFirst;
+        }
+
+        if((millis() - previousTime) >= 200){
+
+          previousTime = millis();
+
+          digitalWrite(listLeds[(index+3)%4], LOW);
+          digitalWrite(listLeds[index], HIGH);
+
+          index++;
+
+          if(index >= 4) index = 0;
+        }
+    }
+
+    return 0;
+}
+</code></pre>
+
+<p>
+Responsável por iniciar o jogo e indicar visualmente que o sistema está aguardando a primeira ação do jogador.
+</p>
+
+<ul>
+<li>Inicializa variáveis de controle do botão pressionado, do primeiro número da sequência e do tempo de espera.</li>
+<li>Define um array com os pinos dos LEDs para gerar o efeito de “luz de espera”.</li>
+<li>Usa um loop que permanece ativo até que o jogador pressione um botão.</li>
+<li>Verifica continuamente se algum botão foi pressionado através da função <code>btnEvent()</code>.</li>
+<li>Quando um botão é pressionado, define esse botão como o primeiro da sequência e retorna seu índice, iniciando o jogo.</li>
+<li>Enquanto nenhum botão é pressionado, acende os LEDs em sequência para gerar feedback visual de espera, usando <code>millis()</code> para evitar delays bloqueantes.</li>
+<li>Controla o índice dos LEDs garantindo que o efeito de luz cicla continuamente enquanto o sistema aguarda a interação do jogador.</li>
+</ul>
+
+<hr>
+
 <h3>Função ledEvent()</h3>
 
 <pre><code>
 void ledEvent(int numberLed, int timeNumber){
 
-    int listLeds[] = {
-        LEDRED,
-        LEDBLUE,
-        LEDYELLOW,
-        LEDGREEN
+    int listLeds[]{
+        LEDGREEN, 
+        LEDYELLOW, 
+        LEDBLUE, 
+        LEDRED      
     };
 
-    int listTones[] = {
-        262,
-        330,
-        392,
-        523
-    };
+    for(int i = 0; i < 4; i++)
+        digitalWrite(listLeds[i], LOW);
 
-    digitalWrite(listLeds[numberLed], HIGH);
+    switch(numberLed){
 
-    tone(BUZZER, listTones[numberLed], timeNumber);
-
+      case 0:
+        digitalWrite(LEDRED, HIGH);
+        tone(BUZZER, 440, timeNumber);
+        break;  
+    
+      case 1:
+        digitalWrite(LEDBLUE, HIGH);
+        tone(BUZZER, 494, timeNumber);
+        break;  
+    
+      case 2:
+        digitalWrite(LEDYELLOW, HIGH);
+        tone(BUZZER, 523, timeNumber);
+        break;  
+    
+      case 3:
+        digitalWrite(LEDGREEN, HIGH);
+        tone(BUZZER, 587, timeNumber);
+        break;
+    }
+    
     delay(timeNumber);
 
-    digitalWrite(listLeds[numberLed], LOW);
+    for(int i = 0; i < 4; i++)
+        digitalWrite(listLeds[i], LOW);
+
+    noTone(BUZZER);
 }
 </code></pre>
 
 <p>
-Responsável por gerar feedback visual e sonoro.
+Responsável por gerar feedback visual e sonoro para cada LED do jogo.
 </p>
 
 <ul>
-
-<li>Define arrays com pinos de LEDs.</li>
-
-<li>Define frequências de som.</li>
-
-<li>Ativa LED.</li>
-
-<li>Toca buzzer.</li>
-
-<li>Espera duração do evento.</li>
-
-<li>Desliga LED.</li>
-
+<li>Define um array com os pinos dos LEDs.</li>
+<li>Desliga todos os LEDs antes de iniciar o evento.</li>
+<li>Acende o LED correspondente ao número recebido.</li>
+<li>Toca a frequência correspondente no buzzer.</li>
+<li>Aguarda a duração do evento usando <code>delay()</code>.</li>
+<li>Desliga todos os LEDs e para o buzzer ao final do evento.</li>
 </ul>
 
 <hr>
@@ -372,18 +443,16 @@ int btnEvent(int timeNumber){
 }
 </code></pre>
 
+<p>
+Responsável por ler a entrada do jogador e gerar feedback correspondente.
+</p>
+
 <ul>
-
-<li>Lê estado dos botões.</li>
-
-<li>Identifica qual foi pressionado.</li>
-
-<li>Aguarda liberação do botão.</li>
-
-<li>Gera feedback com LED e buzzer.</li>
-
-<li>Retorna índice do botão.</li>
-
+<li>Lê o estado de todos os botões.</li>
+<li>Identifica qual botão foi pressionado.</li>
+<li>Aguarda a liberação do botão para evitar múltiplos registros.</li>
+<li>Aciona a função <code>ledEvent()</code> para gerar feedback visual e sonoro.</li>
+<li>Retorna o índice do botão pressionado.</li>
 </ul>
 
 <hr>
@@ -396,6 +465,8 @@ int gaming(int numberFirst){
     bool stateGame = true;
 
     int listNumber[MAX] = {numberFirst};
+    int difficulty = numberFirst;
+
     int timeNumber = 1000 - (numberFirst*200);
 
     int btnNumber = -1;
@@ -417,6 +488,8 @@ int gaming(int numberFirst){
             btnNumber = btnEvent(timeNumber);
         }
 
+        Serial.println(btnNumber);
+
         if(btnNumber == listNumber[i]){
           points++;
         }else{
@@ -424,6 +497,8 @@ int gaming(int numberFirst){
           break;
         }
       }
+
+      if(!stateGame) break;
 
       if(lenListNumber < MAX){
         listNumber[lenListNumber] = random(0,4);
@@ -440,19 +515,12 @@ Função que implementa toda a lógica do jogo Simon.
 </p>
 
 <ul>
-
-<li>Cria vetor que armazena sequência.</li>
-
-<li>Mostra sequência ao jogador.</li>
-
-<li>Espera entrada do jogador.</li>
-
-<li>Verifica se resposta está correta.</li>
-
-<li>Adiciona novo elemento aleatório.</li>
-
-<li>Retorna pontuação final.</li>
-
+<li>Inicia o estado do jogo e armazena a primeira sequência.</li>
+<li>Exibe a sequência de LEDs para o jogador usando <code>ledEvent()</code>.</li>
+<li>Solicita a entrada do jogador e verifica se corresponde à sequência.</li>
+<li>Incrementa a pontuação a cada acerto.</li>
+<li>Adiciona um novo elemento aleatório à sequência se o jogador acertar.</li>
+<li>Encerra o jogo caso o jogador erre e retorna a pontuação final.</li>
 </ul>
 
 <hr>
@@ -494,18 +562,16 @@ void gameOver(){
 }
 </code></pre>
 
+<p>
+Responsável por finalizar o jogo quando o jogador erra.
+</p>
+
 <ul>
-
-<li>Toca melodia de derrota.</li>
-
-<li>Pisca todos os LEDs.</li>
-
-<li>Reinicia microcontrolador.</li>
-
+<li>Toca uma melodia de derrota utilizando o buzzer.</li>
+<li>Pisca todos os LEDs para indicar o fim do jogo.</li>
+<li>Reinicia o microcontrolador chamando <code>resetFunc()</code>.</li>
+<li>E assim retorna ao estado inicial de start do jogo</li>
 </ul>
-
-<hr>
-
 <h2 id="melhorias">Melhorias Futuras</h2>
 
 <ul>
@@ -533,7 +599,7 @@ de lógica de programação aplicada a sistemas embarcados utilizando Arduino.
 
 <ul>
 
-<li>programação embarcada</li>
+<li>lógica de programação embarcada</li>
 
 <li>manipulação de GPIO</li>
 
