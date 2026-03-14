@@ -178,13 +178,15 @@ montagem do jogo Simon baseado em Arduino.
 
 <h2 id="pinos">Mapa de Pinos</h2>
 
-<table border="1" cellpadding="8">
+<table>
+<tr>
+<td>
 
+<table border="1" cellpadding="8">
 <tr>
 <th>Componente</th>
 <th>Pino</th>
 </tr>
-
 <tr><td>LED Verde</td><td>2</td></tr>
 <tr><td>LED Amarelo</td><td>3</td></tr>
 <tr><td>LED Azul</td><td>4</td></tr>
@@ -194,7 +196,15 @@ montagem do jogo Simon baseado em Arduino.
 <tr><td>Botão Azul</td><td>A1</td></tr>
 <tr><td>Botão Amarelo</td><td>A2</td></tr>
 <tr><td>Botão Verde</td><td>A3</td></tr>
+</table>
 
+</td>
+<td>
+
+<img src="assets/pinagem-arduinoUNO.png" alt="Pinagem Arduino Uno" width="400">
+
+</td>
+</tr>
 </table>
 
 <h2 id="execucao">Diagrama visual da montagem do simon</h2>
