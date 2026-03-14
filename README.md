@@ -1,6 +1,6 @@
 <img src="assets/banner_projeto.png" width="100%" alt = "circuito_tinkercad.png">
 
-<h1>Arduino Simon Game</h1>
+<h1>Arduío Simon Game</h1>
 
 <p>
 Projeto desenvolvido no curso de extensão <strong>Arduino e Lógica de Programação para Sistemas Embarcados</strong>,
