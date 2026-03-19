@@ -160,7 +160,7 @@ montagem do jogo Simon baseado em Arduino.
 </tr>
 
 <tr>
-<td>Resistor 1 kΩ</td>
+<td>Resistor 10 kΩ</td>
 <td>4</td>
 <td>Resistores utilizados no circuito dos botões</td>
 </tr>
